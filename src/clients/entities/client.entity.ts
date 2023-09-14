@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 import { Order } from 'src/orders/entities';
 
@@ -39,4 +39,16 @@ export class Client {
     )
     orders?: Order[];
 
+    
+    @BeforeInsert()  
+    verifyEmailBeforeInserting() {
+
+        this.email = this.email.toLowerCase();
+    }
+
+    @BeforeUpdate()   
+    verifyEmailBeforeUpdating() {
+
+        this.email = this.email.toLowerCase();
+    }
 }

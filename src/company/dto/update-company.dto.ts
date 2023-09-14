@@ -1,4 +1,22 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateCompanyDto } from './create-company.dto';
+import { IsString, MinLength } from "class-validator";
 
-export class UpdateCompanyDto extends PartialType(CreateCompanyDto) {}
+
+export class UpdateCompanyDto {
+
+    @IsString()
+    @MinLength(1)  
+    companyName?: string;
+
+    @IsString()
+    @MinLength(10)  
+    phoneNumber?: string;
+
+    @IsString()
+    @MinLength(1)  
+    address?: string;
+
+    @IsString()
+    @MinLength(1)  
+    www?: string;
+
+}

@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { SeedService } from './seed.service';
 
 
-@Controller('seed')
+@Controller('seed') // localhost:3000/api/seed
 export class SeedController {
 
   constructor(

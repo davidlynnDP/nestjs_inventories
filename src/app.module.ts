@@ -9,11 +9,13 @@ import { LocationsModule } from './locations/locations.module';
 import { CompanyModule } from './company/company.module';
 import { ClientsModule } from './clients/clients.module';
 import { OrdersModule } from './orders/orders.module';
+import { CommonModule } from './common/common.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({ isGlobal: true }),
 
     TypeOrmModule.forRoot({
       ssl: process.env.STAGE === 'prod',  // es lo mismo a definir - process.env.STAGE === 'prod' ? true : false
@@ -47,6 +49,10 @@ import { OrdersModule } from './orders/orders.module';
     ClientsModule,
 
     OrdersModule,
+
+    CommonModule,
+
+    CloudinaryModule,
   ],
 })
 export class AppModule {}

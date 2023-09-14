@@ -5,15 +5,25 @@ import { ProductsService } from './products.service';
 import { ProductsController } from './products.controller';
 import { Product, ProductCategories, ProductImage } from './entities';
 
+import { CommonModule } from 'src/common/common.module';
+import { ProductCategoriesService } from './product-categories.service';
+import { ProductImagesService } from './product-images.service';
+import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
+
+
 @Module({
   controllers: [ ProductsController ],
-  providers: [ ProductsService ],
+  providers: [ ProductsService, ProductCategoriesService, ProductImagesService ],
   imports: [ 
-    TypeOrmModule.forFeature([ Product, ProductImage, ProductCategories ])
+    TypeOrmModule.forFeature([ Product, ProductImage, ProductCategories ]),
+    CommonModule,
+    CloudinaryModule
   ],
   exports: [
     TypeOrmModule,
-    ProductsService
+    ProductsService,
+    ProductCategoriesService,
+    ProductImagesService
   ]
 })
 export class ProductsModule {}

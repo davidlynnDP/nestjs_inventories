@@ -1,8 +1,9 @@
-import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { BeforeInsert, Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 import { Location } from 'src/locations/entities';
 import { Product } from 'src/products/entities';
 import { TypesOfInventoryMovement } from '../enums';
+import { formattedDate } from '../helpers';
 
 
 @Entity({ name: 'inventory_movements' })
@@ -14,7 +15,7 @@ export class InventoryMovement {
     @Column({
         type: 'date'
     })
-    inventoryMovementDate: Date;
+    inventoryMovementDate: string;
 
     @Column({
         enum: TypesOfInventoryMovement
@@ -49,4 +50,9 @@ export class InventoryMovement {
     destinationLocation?: Location;
 
     
+    @BeforeInsert()  
+    createDateBeforeInserting() {
+
+        this.inventoryMovementDate = formattedDate();
+    }
 }

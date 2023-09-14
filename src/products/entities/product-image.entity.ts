@@ -18,7 +18,7 @@ export class ProductImage {
     @ManyToOne(
         () => Product,
         (product) => product.images,
-        { onDelete: 'CASCADE' }  
+        /* options? - bardHelp */
     )
     product?: Product 
 }

@@ -13,6 +13,10 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
+      transform: true,  
+      transformOptions: {
+        enableImplicitConversion: true,
+      }
     })
   );
 
@@ -33,6 +37,8 @@ bootstrap();
 
 // nest g resource clients --no-spec
 // nest g resource orders --no-spec
+
+// nest g mo common --no-spec
 
 
 // nest g resource seed     --no-spec

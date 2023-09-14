@@ -2,12 +2,18 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { ProductImagesService } from './product-images.service';
+import { ProductCategoriesService } from './product-categories.service';
 
 @Controller('products')
 export class ProductsController {
   
   constructor(
-    private readonly productsService: ProductsService
+    private readonly productsService: ProductsService,
+
+    private readonly productImagesService: ProductImagesService, 
+
+    private readonly productCategoriesService: ProductCategoriesService, 
   ) {}
 
   @Post()

@@ -1,10 +1,11 @@
-import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 import { ProductCategories, ProductImage } from './';
 import { Supplier } from 'src/suppliers/entities';
 import { Location } from 'src/locations/entities';
 import { InventoryMovement } from 'src/inventory-movements/entities';
 import { Company } from 'src/company/entities';
+import { SEOFriendlyURL } from '../helpers';
 
 
 @Entity({ name: 'products' })
@@ -67,7 +68,7 @@ export class Product {
     @OneToMany(  
         () => ProductImage,
         (productImage) => productImage.product, 
-        { cascade: true, eager: true }  
+        { eager: true }  
     )
     images?: ProductImage[];
 
@@ -91,4 +92,20 @@ export class Product {
         /* options? - bardHelp */
     )
     movements?: InventoryMovement[];
+
+
+
+    
+    @BeforeInsert()  
+    verifyCodeBeforeInserting() {
+
+        this.code = SEOFriendlyURL( this.title );
+    }
+
+
+    @BeforeUpdate()   
+    verifyCodeBeforeUpdating() {
+
+        this.code = SEOFriendlyURL( this.title );
+    }
 }

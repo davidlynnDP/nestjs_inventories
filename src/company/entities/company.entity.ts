@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 import { Product } from '../../products/entities';
 import { Order } from 'src/orders/entities';
@@ -57,5 +57,18 @@ export class Company {
         /* options? - bardHelp */
     )
     products?: Product[];
+
+        
+    @BeforeInsert()  
+    verifyEmailBeforeInserting() {
+
+        this.email = this.email.toLowerCase();
+    }
+
+    @BeforeUpdate()   
+    verifyEmailBeforeUpdating() {
+
+        this.email = this.email.toLowerCase();
+    }
 
 }
