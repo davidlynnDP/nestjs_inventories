@@ -7,6 +7,9 @@ import { CreateClientDto, UpdateClientDto } from './dto';
 import { Client } from './entities';
 import { CommonService } from 'src/common/common.service';
 import { PaginationDto } from 'src/common/dtos';
+import { CompanyService } from 'src/company/company.service';
+
+type OptionsFindClient = "flattened" | "company" | "orders";
 
 
 @Injectable()
@@ -16,16 +19,22 @@ export class ClientsService {
     @InjectRepository(Client)
     private readonly clientRepository: Repository<Client>, 
 
+    private readonly companyService: CompanyService,
+
     private readonly commonService: CommonService,
   ) {}
 
 
   async createClient( createClientDto: CreateClientDto ) {
 
+    const { idCompany, ...aboutClient } = createClientDto;
+    const company = await this.companyService.findCompanyByTerm( idCompany )
+
     try {
       
       const client = this.clientRepository.create({ 
-        ...createClientDto
+        ...aboutClient,
+        company
       });
       
       return await this.clientRepository.save( client );  
@@ -35,17 +44,23 @@ export class ClientsService {
     }
   }
 
-  async findAllClients( paginationDto: PaginationDto ) {
+  async findAllClients( id: string, paginationDto: PaginationDto ) {
 
     const { limit = 10, offset = 0 } = paginationDto;
+    const company = await this.companyService.findCompanyByTerm( id )
 
     const clients = await this.clientRepository.find({
       take: limit,   
-      skip: offset,  
+      skip: offset, 
+      where: {
+        company: {
+          id: company.id
+        }
+      } 
     })
 
-    return clients.map( ( client ) => ({
-      ...client,
+    return clients.map( ({ company, orders, ...aboutClient }) => ({
+      ...aboutClient
     }))
 
   }
@@ -72,13 +87,50 @@ export class ClientsService {
     return client;
   }
 
-  async findClientByTermPlained( term: string ) {
+  async findClientBy( term: string, options: OptionsFindClient = 'flattened' ) {
+
+    switch ( options ) {
+      case 'orders':
+        return await this.numberOfOrdersByThisCustomer( term );
+      case 'company':
+        return await this.findClientWithCompany( term );
+      default:
+        return await this.findClientPlained( term );
+    }
+
+  }
+
+  async findClientPlained( term: string ) {
     
-    const supplier = await this.findClientByTerm( term );
-    const { orders, ...aboutClient } = supplier;
+    const client = await this.findClientByTerm( term );
+    const { company, orders, ...aboutClient } = client;
 
     return {
       ...aboutClient,
+    }
+
+  }
+
+  async numberOfOrdersByThisCustomer( term: string ) {
+    
+    const client = await this.findClientByTerm( term );
+    const { company, orders, ...aboutClient } = client;
+
+    return {
+      ...aboutClient,
+      orders: orders.length
+    }
+
+  }
+
+  async findClientWithCompany( term: string ) {
+    
+    const client = await this.findClientByTerm( term );
+    const { company, orders, ...aboutClient } = client;
+
+    return {
+      ...aboutClient,
+      company: company.companyName
     }
 
   }

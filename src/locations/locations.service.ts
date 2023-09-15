@@ -7,6 +7,11 @@ import { CreateLocationDto, UpdateLocationDto } from './dto';
 import { Location } from './entities';
 import { CommonService } from 'src/common/common.service';
 import { PaginationDto } from 'src/common/dtos';
+import { CompanyService } from 'src/company/company.service';
+
+
+type OptionsFindLocation = "flattened" | "products" | "company" | "movements";
+
 
 @Injectable()
 export class LocationsService {
@@ -15,15 +20,21 @@ export class LocationsService {
     @InjectRepository(Location)
     private readonly locationRepository: Repository<Location>, 
 
+    private readonly companyService: CompanyService,
+
     private readonly commonService: CommonService,
   ) {}
 
   async createLocation( createLocationDto: CreateLocationDto ) {
 
+    const { idCompany, ...aboutLocation } = createLocationDto;
+    const company = await this.companyService.findCompanyByTerm( idCompany )
+
     try {
       
       const location = this.locationRepository.create({ 
-        ...createLocationDto
+        ...aboutLocation,
+        company
       });
       
       return await this.locationRepository.save( location );  
@@ -33,21 +44,23 @@ export class LocationsService {
     }
   }
 
-  async findAllLocations( paginationDto: PaginationDto ) {
+  async findAllLocations( id: string, paginationDto: PaginationDto ) {
 
     const { limit = 10, offset = 0 } = paginationDto;
+    const company = await this.companyService.findCompanyByTerm( id )
 
     const locations = await this.locationRepository.find({
       take: limit,   
       skip: offset,  
-      relations: {
-        products: true,
+      where: {
+        company: {
+          id: company.id
+        }
       }
     })
 
-    return locations.map( ({ products, ...location }) => ({
-      ...location,
-      products: products.map( product => product.title )
+    return locations.map( ({ company, movements, products, ...aboutLocation }) => ({
+      ...aboutLocation
     }))
 
   }
@@ -73,16 +86,70 @@ export class LocationsService {
     return location;
   }
 
-  async findLocationByTermPlained( term: string ) {
+  async findLocationBy( term: string, options: OptionsFindLocation = 'flattened' ) {
+
+    switch ( options ) {
+      case 'products':
+        return await this.findLocationWithProducts( term );
+      case 'company':
+        return await this.findLocationWithCompany( term );
+      case 'movements':
+        return await this.findLocationWithMovements( term );
+      default:
+        return await this.findLocationPlained( term );
+    }
+    
+  }
+
+  async findLocationPlained( term: string ) {
     
     const location = await this.findLocationByTerm( term );
-    const { products, movements, ...aboutLocation } = location;
+    const { company, movements, products, ...aboutLocation } = location;
 
     return {
       ...aboutLocation,
-      products: products.map( product => product.title )
     }
+  }
 
+  async findLocationWithProducts( term: string ) {
+    
+    const location = await this.findLocationByTerm( term );
+    const { company, movements, products, ...aboutLocation } = location;
+
+    return {
+      ...aboutLocation,
+      products: products.map( ({ id, title, code }) => ({
+        id,
+        title,
+        code
+      }))
+    }
+  }
+
+  async findLocationWithCompany( term: string ) {
+    
+    const location = await this.findLocationByTerm( term );
+    const { company, movements, products, ...aboutLocation } = location;
+
+    return {
+      ...aboutLocation,
+      company: company.companyName
+    }
+  }
+
+  async findLocationWithMovements( term: string ) {
+    
+    const location = await this.findLocationByTerm( term );
+    const { company, movements, products, ...aboutLocation } = location;
+
+    return {
+      ...aboutLocation,
+      movements: movements.map( ({ id, inventoryMovementDate, inventoryMovementType }) => ({
+        id,
+        inventoryMovementDate,
+        inventoryMovementType
+      }))
+    }
   }
 
   async updateLocation( id: string, updateLocationDto: UpdateLocationDto ): Promise<Location> {

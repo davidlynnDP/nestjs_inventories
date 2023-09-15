@@ -84,7 +84,7 @@ export class Product {
         (location) => location.products, 
         /* options? - bardHelp */
     )
-    locations?: Location[];
+    locations?: Location;
 
     @OneToMany(  
         () => InventoryMovement,

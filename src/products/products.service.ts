@@ -9,6 +9,12 @@ import { CommonService } from 'src/common/common.service';
 import { PaginationDto } from 'src/common/dtos';
 import { ProductImagesService } from './product-images.service';
 import { ProductCategoriesService } from './product-categories.service';
+import { CompanyService } from 'src/company/company.service';
+import { SuppliersService } from 'src/suppliers/suppliers.service';
+import { LocationsService } from 'src/locations/locations.service';
+
+
+type OptionsFindProduct = "flattened" | "category-and-images" | "company" | "supplier" | "locations" | "movements";
 
 
 @Injectable()
@@ -20,6 +26,12 @@ export class ProductsService {
 
     private readonly productImagesService: ProductImagesService, 
 
+    private readonly companyService: CompanyService,
+
+    private readonly suppliersService: SuppliersService,
+
+    private readonly locationsService: LocationsService,
+
     private readonly productCategoriesService: ProductCategoriesService, 
 
     private readonly commonService: CommonService,
@@ -28,23 +40,50 @@ export class ProductsService {
 
   async createProduct( createProductDto: CreateProductDto ) {
     
-    const { category, ...productDetails } = createProductDto;
-    const categoryInstance = await this.productCategoriesService.createProductCategory( category );
+    const { category:cat, idCompany, idSupplier, idLocation, ...productDetails } = createProductDto;
+    const category = await this.productCategoriesService.createProductCategory( cat );
+    const company = await this.companyService.findCompanyByTerm( idCompany );
+    const supplier = await this.suppliersService.findSupplierByTerm( idSupplier );
+    const location = await this.locationsService.findLocationByTerm( idLocation );
 
+    //* corregir entity product-location
     try {
       
       const product = this.productRepository.create({ 
         ...productDetails,
-        category: categoryInstance,
+        category,
+        company,
+        supplier,
+        locations: location
       });
       
       await this.productRepository.save( product );  
 
-      return { ...product, category };
+      return { ...productDetails, cat };
       
     } catch ( error ) {
       this.commonService.errorHandler( error );
     }
+  }
+
+  async findAllProducts( id: string, paginationDto: PaginationDto ) {
+
+    const { limit = 10, offset = 0 } = paginationDto;
+    const company = await this.companyService.findCompanyByTerm( id )
+
+    const products = await this.productRepository.find({
+      take: limit,   
+      skip: offset,  
+      where: {
+        company: {
+          id: company.id
+        }
+      }
+    })
+
+    return products.map( ({ company, supplier, locations, movements, images, category, ...aboutProduct }) => ({
+      ...aboutProduct
+    }))
   }
 
   async findProductByTerm( term: string ): Promise<Product> {
@@ -69,56 +108,108 @@ export class ProductsService {
     return product;
   }
 
-  async findProductByTermPlained( term: string ) {
+  async findProductBy( term: string, options: OptionsFindProduct = 'flattened' ) {
+
+    switch ( options ) {
+      case 'supplier':
+        return await this.findProductWithSupplier( term );
+      case 'company':
+        return await this.findProductWithCompany( term );
+      case 'category-and-images':
+        return await this.findProductWithCategoryAndImages( term );
+      case 'locations':
+        return await this.findProductWithLocations( term );
+      case 'movements':
+          return await this.findProductWithMovements( term );
+      default:
+        return await this.findProductPlained( term );
+    }
+  }
+
+  async findProductPlained( term: string ) {
 
     const product = await this.findProductByTerm( term );
-    const { company, supplier, locations, movements, images, category, ...productPlained } = product;
+    const { company, supplier, locations, movements, images, category, ...aboutProduct } = product;
 
     return {
-      ...productPlained,
+      ...aboutProduct,
+    }
+  }
+
+  async findProductWithCategoryAndImages( term: string ) {
+
+    const product = await this.findProductByTerm( term );
+    const { company, supplier, locations, movements, images, category, ...aboutProduct } = product;
+
+    return {
+      ...aboutProduct,
       images: images.map( image => image.url ),
       category: category.category
     }
   }
 
-  async findAllProducts( paginationDto: PaginationDto ) {
+  async findProductWithCompany( term: string ) {
 
-    const { limit = 10, offset = 0 } = paginationDto;
+    const product = await this.findProductByTerm( term );
+    const { company, supplier, locations, movements, images, category, ...aboutProduct } = product;
 
-    const products = await this.productRepository.find({
-      take: limit,   
-      skip: offset,  
-      relations: {
-        images: true,    
-        category: true
-      }
-    })
-
-    return products.map( ( product ) => ({
-      ...product,
-      images: product.images.map( img => img.url ),
-      category: product.category.category
-    }))
+    return {
+      ...aboutProduct,
+      company: company.companyName
+    }
   }
+
+
+  async findProductWithSupplier( term: string ) {
+
+    const product = await this.findProductByTerm( term );
+    const { company, supplier, locations, movements, images, category, ...aboutProduct } = product;
+
+    return {
+      ...aboutProduct,
+      supplier: supplier.fullName
+    }
+  }
+
+  async findProductWithLocations( term: string ) {
+
+    const product = await this.findProductByTerm( term );
+    const { company, supplier, locations, movements, images, category, ...aboutProduct } = product;
+
+    return {
+      ...aboutProduct,
+      locations: locations.locationName
+    }
+  }
+
+  async findProductWithMovements( term: string ) {
+
+    const product = await this.findProductByTerm( term );
+    const { company, supplier, locations, movements, images, category, ...aboutProduct } = product;
+
+    return {
+      ...aboutProduct,
+      movements: movements.map( movement => movement.id )
+    }
+  }
+
 
 
   async updateProduct( id: string, updateProductDto: UpdateProductDto ) {
 
-    const { category, ...productToUpdate } = updateProductDto;
+    const { category:cat, ...productToUpdate } = updateProductDto;
     
     await this.findProductByTerm( id );
-    const categoryInstance = await this.productCategoriesService.createProductCategory( category );
+    const category = await this.productCategoriesService.createProductCategory( cat );
 
     try {
       const product = await this.productRepository.preload({ 
         id, 
         ...productToUpdate, 
-        category: categoryInstance 
+        category 
       });
 
-      await this.productRepository.save( product );  
-
-      return { ...product, category };
+      return await this.productRepository.save( product );  
 
     } catch ( error ) {
       this.commonService.errorHandler( error )

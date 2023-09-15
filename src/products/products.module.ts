@@ -9,6 +9,7 @@ import { CommonModule } from 'src/common/common.module';
 import { ProductCategoriesService } from './product-categories.service';
 import { ProductImagesService } from './product-images.service';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
+import { CompanyModule } from 'src/company/company.module';
 
 
 @Module({
@@ -17,7 +18,8 @@ import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
   imports: [ 
     TypeOrmModule.forFeature([ Product, ProductImage, ProductCategories ]),
     CommonModule,
-    CloudinaryModule
+    CloudinaryModule,
+    CompanyModule
   ],
   exports: [
     TypeOrmModule,

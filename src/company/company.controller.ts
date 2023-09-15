@@ -28,51 +28,49 @@ export class CompanyController {
   findCompanyPlained(
     @Param( 'term' ) term: string
   ) {
-    return this.companyService.findCompanyByTermPlained( term );
+    return this.companyService.findCompanyBy( term );
   }
 
-  //! corregir
   @Get('with-products/:term') // localhost:3000/api/company/with-products/:term - GET
   findCompanyWithProducts(
     @Param( 'term' ) term: string
   ) {
-    return this.companyService.findCompanyByTermPlained( term );
+    return this.companyService.findCompanyBy( term, 'products');
   }
 
   @Get('with-clients/:term') // localhost:3000/api/company/with-clients/:term - GET
   findCompanyWithClients(
     @Param( 'term' ) term: string
   ) {
-    return this.companyService.findCompanyByTermPlained( term );
+    return this.companyService.findCompanyBy( term, 'clients');
   }
 
   @Get('with-suppliers/:term') // localhost:3000/api/company/with-suppliers/:term - GET
   findCompanyWithSuppliers(
     @Param( 'term' ) term: string
   ) {
-    return this.companyService.findCompanyByTermPlained( term );
+    return this.companyService.findCompanyBy( term, 'suppliers');
   }
 
   @Get('with-locations/:term') // localhost:3000/api/company/with-locations/:term - GET
   findCompanyWithLocations(
     @Param( 'term' ) term: string
   ) {
-    return this.companyService.findCompanyByTermPlained( term );
+    return this.companyService.findCompanyBy( term, 'locations');
   }
 
   @Get('with-categories/:term') // localhost:3000/api/company/with-categories/:term - GET
   findCompanyWithCategories(
     @Param( 'term' ) term: string
   ) {
-    return this.companyService.findCompanyByTermPlained( term );
+    return this.companyService.findCompanyBy( term, 'categories');
   }
 
-  //! crear
   @Get('number-of-orders-shipped/:term') // localhost:3000/api/company/number-of-orders-shipped/:term - GET
   numberOfOrdersShippedPerCompany(
     @Param( 'term' ) term: string
   ) {
-    return this.companyService.findCompanyByTermPlained( term );
+    return this.companyService.findCompanyBy( term, 'orders');
   }
 
   @Patch(':id') // localhost:3000/api/company/:id - PATCH

@@ -7,7 +7,10 @@ import { CreateSupplierDto, UpdateSupplierDto } from './dto';
 import { Supplier } from './entities';
 import { CommonService } from 'src/common/common.service';
 import { PaginationDto } from 'src/common/dtos';
+import { CompanyService } from 'src/company/company.service';
 
+
+type OptionsFindSupplier = "flattened" | "products" | "company";
 
 @Injectable()
 export class SuppliersService {
@@ -16,16 +19,22 @@ export class SuppliersService {
     @InjectRepository(Supplier)
     private readonly supplierRepository: Repository<Supplier>, 
 
+    private readonly companyService: CompanyService,
+
     private readonly commonService: CommonService,
   ) {}
 
 
   async createSupplier( createSupplierDto: CreateSupplierDto ) {
 
+    const { idCompany, ...aboutSupplier } = createSupplierDto;
+    const company = await this.companyService.findCompanyByTerm( idCompany )
+
     try {
       
       const supplier = this.supplierRepository.create({ 
-        ...createSupplierDto
+        ...aboutSupplier,
+        company
       });
       
       return await this.supplierRepository.save( supplier );  
@@ -35,21 +44,23 @@ export class SuppliersService {
     }
   }
 
-  async findAllSuppliers( paginationDto: PaginationDto ) {
+  async findAllSuppliers( id: string, paginationDto: PaginationDto ) {
 
     const { limit = 10, offset = 0 } = paginationDto;
+    const company = await this.companyService.findCompanyByTerm( id )
 
     const suppliers = await this.supplierRepository.find({
       take: limit,   
       skip: offset,  
-      relations: {
-        products: true
+      where: {
+        company: {
+          id: company.id
+        }
       }
     })
 
-    return suppliers.map( ( supplier ) => ({
-      ...supplier,
-      products: supplier.products.map( product => product.title )
+    return suppliers.map( ({ products, company, ...aboutSupplier }) => ({
+      ...aboutSupplier
     }))
 
   }
@@ -76,17 +87,57 @@ export class SuppliersService {
     return supplier;
   }
 
-  async findSupplierByTermPlained( term: string ) {
+  async findSupplierBy( term: string, options: OptionsFindSupplier = 'flattened' ) {
+
+    switch ( options ) {
+      case 'products':
+        return await this.findSupplierWithProducts( term );
+      case 'company':
+        return await this.findSupplierWithCompany( term );
+      default:
+        return await this.findSupplierPlained( term );
+    }
+  }
+
+  async findSupplierPlained( term: string ) {
     
     const supplier = await this.findSupplierByTerm( term );
-    const { products, ...aboutSupplier } = supplier;
+    const { products, company, ...aboutSupplier } = supplier;
 
     return {
       ...aboutSupplier,
-      products: products.map( product => product.title )
     }
 
   }
+
+  async findSupplierWithCompany( term: string ) {
+    
+    const supplier = await this.findSupplierByTerm( term );
+    const { products, company, ...aboutSupplier } = supplier;
+
+
+    return {
+      ...aboutSupplier,
+      company: company.companyName
+    }
+  }
+
+  async findSupplierWithProducts( term: string ) {
+    
+    const supplier = await this.findSupplierByTerm( term );
+    const { products, company, ...aboutSupplier } = supplier;
+
+
+    return {
+      ...aboutSupplier,
+      products: products.map( ({ id, title, code }) => ({
+        id,
+        title,
+        code
+      }))
+    }
+  }
+
 
   async updateSupplier( id: string, updateSupplierDto: UpdateSupplierDto ): Promise<Supplier> {
     

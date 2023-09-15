@@ -9,6 +9,7 @@ import { Company } from './entities';
 import { CommonService } from 'src/common/common.service';
 import { PaginationDto } from 'src/common/dtos';
 
+type OptionsFindCompany = 'flattened' | 'orders' | 'products' | 'clients' | 'suppliers' | 'locations' | 'categories'
 
 @Injectable()
 export class CompanyService {
@@ -51,15 +52,11 @@ export class CompanyService {
 
     const companies = await this.companyRepository.find({
       take: limit,   
-      skip: offset,  
-      relations: {
-        products: true
-      }
+      skip: offset, 
     })
 
-    return companies.map( ( company ) => ({
-      ...company,
-      products: company.products.map( product => product.title )
+    return companies.map( ({ orders, products, clients, suppliers, locations, categories, ...aboutCompany }) => ({
+      company: aboutCompany
     }))
 
   }
@@ -86,16 +83,120 @@ export class CompanyService {
     return company;
   }
 
-  async findCompanyByTermPlained( term: string ) {
-    
-    const company = await this.findCompanyByTerm( term );
-    const { products, orders, ...aboutCompany } = company;
+  async findCompanyBy( term: string, options: OptionsFindCompany = 'flattened' ) {
 
-    return {
-      ...aboutCompany,
-      products: products.map( product => product.title )
+    switch ( options ) {
+      case 'categories':
+        return await this.findCompanyWithCategories( term );
+      case 'clients':
+        return await this.findCompanyWithClients( term );
+      case 'locations':
+        return await this.findCompanyWithLocations( term );
+      case 'orders':
+        return await this.numberOfOrdersShippedPerCompany( term );
+      case 'products':
+        return await this.findCompanyWithProducts( term );
+      case 'suppliers':
+        return await this.findCompanyWithSuppliers( term );
+      default:
+        return await this.findCompanyPlained( term );
     }
 
+  }
+
+  async findCompanyPlained( term: string ) {
+    
+    const company = await this.findCompanyByTerm( term );
+    const { orders, products, clients, suppliers, locations, categories, ...aboutCompany } = company;
+
+    return { 
+      ...aboutCompany
+    }
+  }
+
+  async findCompanyWithProducts( term: string ) {
+    
+    const company = await this.findCompanyByTerm( term );
+    const { orders, products, clients, suppliers, locations, categories, ...aboutCompany } = company;
+
+    return { 
+      ...aboutCompany,
+      products: products.map( ({ id, title, code }) => ({
+        id,
+        title,
+        code
+      }))
+    }
+  }
+
+  async findCompanyWithClients( term: string ) {
+    
+    const company = await this.findCompanyByTerm( term );
+    const { orders, products, clients, suppliers, locations, categories, ...aboutCompany } = company;
+
+    return { 
+      ...aboutCompany,
+      clients: clients.map( ({ id, fullName, email }) => ({
+        id,
+        fullName,
+        email
+      }))
+    }
+  }
+
+  async findCompanyWithSuppliers( term: string ) {
+    
+    const company = await this.findCompanyByTerm( term );
+    const { orders, products, clients, suppliers, locations, categories, ...aboutCompany } = company;
+
+    return { 
+      ...aboutCompany,
+      suppliers: suppliers.map( ({ id, fullName, email }) => ({
+        id,
+        fullName,
+        email
+      }))
+    }
+  }
+
+  async findCompanyWithLocations( term: string ) {
+    
+    const company = await this.findCompanyByTerm( term );
+    const { orders, products, clients, suppliers, locations, categories, ...aboutCompany } = company;
+
+    return { 
+      ...aboutCompany,
+      locations: locations.map( ({ id, locationName, locationAddress }) => ({
+        id,
+        locationName,
+        locationAddress
+      }))
+    }
+  }
+
+  async findCompanyWithCategories( term: string ) {
+    
+    const company = await this.findCompanyByTerm( term );
+    const { orders, products, clients, suppliers, locations, categories, ...aboutCompany } = company;
+
+    return { 
+      ...aboutCompany,
+      categories: categories.map( ({ id, category }) => ({
+        id,
+        category
+      }))
+    }
+  }
+
+  async numberOfOrdersShippedPerCompany( term: string ) {
+    
+    const company = await this.findCompanyByTerm( term );
+    const { orders, products, clients, suppliers, locations, categories, ...aboutCompany } = company;
+
+    return { 
+      ...aboutCompany,
+      orders: orders.length
+    }
   }
 
   async updateCompany( id: string, updateCompanyDto: UpdateCompanyDto ): Promise<Company> {

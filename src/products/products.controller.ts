@@ -34,47 +34,46 @@ export class ProductsController {
     return this.productsService.findAllProducts( id, paginationDto );
   }
 
-  //! corregir
   @Get('plained/:term') // localhost:3000/api/products/plained/:term - GET
   findProductPlained(
     @Param( 'term' ) term: string
   ) {
-    return this.productsService.findProductByTermPlained( term );
+    return this.productsService.findProductBy( term );
   }
 
   @Get('with-category-and-images/:term') // localhost:3000/api/products/with-category-and-images/:term - GET
   findProductWithCategoryAndImages(
     @Param( 'term' ) term: string
   ) {
-    return this.productsService.findProductByTermPlained( term );
+    return this.productsService.findProductBy( term, "category-and-images");
   }
 
   @Get('with-company/:term') // localhost:3000/api/products/with-company/:term - GET
   findProductWithCompany(
     @Param( 'term' ) term: string
   ) {
-    return this.productsService.findProductByTermPlained( term );
+    return this.productsService.findProductBy( term, "company");
   }
 
   @Get('with-supplier/:term') // localhost:3000/api/products/with-supplier/:term - GET
   findProductWithSupplier(
     @Param( 'term' ) term: string
   ) {
-    return this.productsService.findProductByTermPlained( term );
+    return this.productsService.findProductBy( term, "supplier");
   }
 
   @Get('with-locations/:term') // localhost:3000/api/products/with-locations/:term - GET
   findProductWithLocations(
     @Param( 'term' ) term: string
   ) {
-    return this.productsService.findProductByTermPlained( term );
+    return this.productsService.findProductBy( term, "locations");
   }
 
   @Get('with-movements/:term') // localhost:3000/api/products/with-movements/:term - GET
   findProductWithMovements(
     @Param( 'term' ) term: string
   ) {
-    return this.productsService.findProductByTermPlained( term );
+    return this.productsService.findProductBy( term, "movements");
   }
 
   @Patch(':id') // localhost:3000/api/products/:id - PATCH

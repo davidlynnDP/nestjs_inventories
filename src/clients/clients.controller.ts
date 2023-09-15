@@ -25,30 +25,29 @@ export class ClientsController {
     return this.clientsService.findAllClients( id, paginationDto );
   }
 
-  //! corregir
   @Get('plained/:term') // localhost:3000/api/clients/plained/:term - GET
   findClientPlained(
     @Param( 'term' ) term: string
   ) {
-    return this.clientsService.findClientByTermPlained( term );
+    return this.clientsService.findClientBy( term );
   }
 
   @Get('number-of-orders-by-this-customer/:term') // localhost:3000/api/clients/number-of-orders-by-this-customer/:term - GET
   numberOfOrdersByThisCustomer(
     @Param( 'term' ) term: string
   ) {
-    return this.clientsService.findClientByTermPlained( term );
+    return this.clientsService.findClientBy( term, "orders");
   }
 
   @Get('with-company/:term') // localhost:3000/api/clients/with-company/:term - GET
   findClientWithCompany(
     @Param( 'term' ) term: string
   ) {
-    return this.clientsService.findClientByTermPlained( term );
+    return this.clientsService.findClientBy( term, "company");
   }
 
   @Patch(':id') // localhost:3000/api/clients/:id - PATCH
-  updateLocation(
+  updateClient(
     @Param('id', ParseUUIDPipe ) id: string,
     @Body() updateClientDto: UpdateClientDto
   ) {
@@ -56,7 +55,7 @@ export class ClientsController {
   }
 
   @Delete(':id') // localhost:3000/api/clients/:id - DELETE
-  deleteLocation(
+  deleteClient(
     @Param('id', ParseUUIDPipe ) id: string,
   ) {
     return this.clientsService.deleteClient( id );

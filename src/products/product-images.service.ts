@@ -156,21 +156,24 @@ export class ProductImagesService {
     }
     
 
-    async findAllImages( paginationDto: PaginationDto ) {
+    async findAllImages( id: string, paginationDto: PaginationDto ) {
     
       const { limit = 10, offset = 0 } = paginationDto;
+      const product = await this.productsService.findProductByTerm( id );
   
       const productImages = await this.productImageRepository.find({
         take: limit,   
         skip: offset, 
-        relations: {
-          product: true
+        where: {
+          product: {
+            id: product.id
+          }
         }
       })
   
-      return productImages.map( ({ url, product }) => ({
-        url,
-        product: product.title
+      return productImages.map( ({ id, url }) => ({
+        id,
+        url
       }))
     }
 

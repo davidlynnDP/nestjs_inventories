@@ -24,26 +24,25 @@ export class SuppliersController {
     return this.suppliersService.findAllSuppliers( id, paginationDto );
   }
 
-  //! corregir
   @Get('with-products/:term') // localhost:3000/api/suppliers/with-products/:term - GET
   findSupplierWithProducts(
     @Param( 'term' ) term: string
   ) {
-    return this.suppliersService.findSupplierByTermPlained( term );
+    return this.suppliersService.findSupplierBy( term, 'products');
   }
 
   @Get('with-company/:term') // localhost:3000/api/suppliers/with-company/:term - GET
   findSupplierWithCompany(
     @Param( 'term' ) term: string
   ) {
-    return this.suppliersService.findSupplierByTermPlained( term );
+    return this.suppliersService.findSupplierBy( term, 'company');
   }
 
   @Get('plained/:term') // localhost:3000/api/suppliers/plained/:term - GET
   findSupplierPlained(
     @Param( 'term' ) term: string
   ) {
-    return this.suppliersService.findSupplierByTermPlained( term );
+    return this.suppliersService.findSupplierBy( term );
   }
 
   @Patch(':id') // localhost:3000/api/suppliers/:id - PATCH

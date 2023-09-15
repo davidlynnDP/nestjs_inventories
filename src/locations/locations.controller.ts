@@ -25,33 +25,32 @@ export class LocationsController {
     return this.locationsService.findAllLocations( id, paginationDto );
   }
 
-  //! corregir
   @Get('plained/:term') // localhost:3000/api/locations/plained/:term - GET
   findLocationPlained(
     @Param( 'term' ) term: string
   ) {
-    return this.locationsService.findLocationByTermPlained( term );
+    return this.locationsService.findLocationBy( term );
   }
 
   @Get('with-products/:term') // localhost:3000/api/locations/with-products/:term - GET
   findLocationWithProducts(
     @Param( 'term' ) term: string
   ) {
-    return this.locationsService.findLocationByTermPlained( term );
+    return this.locationsService.findLocationBy( term, 'products');
   }
 
   @Get('with-company/:term') // localhost:3000/api/locations/with-company/:term - GET
   findLocationWithCompany(
     @Param( 'term' ) term: string
   ) {
-    return this.locationsService.findLocationByTermPlained( term );
+    return this.locationsService.findLocationBy( term, 'company');
   }
 
   @Get('with-movements/:term') // localhost:3000/api/locations/with-movements/:term - GET
   findLocationWithMovements(
     @Param( 'term' ) term: string
   ) {
-    return this.locationsService.findLocationByTermPlained( term );
+    return this.locationsService.findLocationBy( term, 'movements');
   }
 
   @Patch(':id') // localhost:3000/api/locations/:id - PATCH

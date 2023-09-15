@@ -6,6 +6,7 @@ import { validate as isUUID } from 'uuid';
 import { ProductCategories } from "./entities";
 import { CommonService } from "src/common/common.service";
 import { PaginationDto } from "src/common/dtos";
+import { CompanyService } from "src/company/company.service";
 
 
 @Injectable()
@@ -14,6 +15,8 @@ export class ProductCategoriesService {
     constructor(
         @InjectRepository(ProductCategories)
         private readonly productCategoryRepository: Repository<ProductCategories>,  
+
+        private readonly companyService: CompanyService,
         
         private readonly commonService: CommonService,
       ) {}
@@ -56,21 +59,24 @@ export class ProductCategoriesService {
         return category;
       }
     
-      async findAllCategories( paginationDto: PaginationDto ) {
+      async findAllCategories( id: string, paginationDto: PaginationDto ) {
     
         const { limit = 10, offset = 0 } = paginationDto;
+        const company = await this.companyService.findCompanyByTerm( id )
     
         const categories = await this.productCategoryRepository.find({
           take: limit,   
           skip: offset, 
-          relations: {
-            products: true
+          where: {
+            company: {
+              id: company.id
+            }
           }
         })
     
-        return categories.map( ({ category, products }) => ({
+        return categories.map( ({ id, category }) => ({
+          id,
           category,
-          products: products.map( product => product.title )
         }))
       }
 
