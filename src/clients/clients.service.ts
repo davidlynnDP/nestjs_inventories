@@ -101,7 +101,7 @@ export class ClientsService {
   }
 
 
-  async deleteSupplier( id: string ) {
+  async deleteClient( id: string ) {
     
     const client = await this.findClientByTerm( id ); 
 

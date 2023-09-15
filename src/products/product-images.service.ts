@@ -8,6 +8,7 @@ import { CommonService } from "src/common/common.service";
 import { CloudinaryService } from "src/cloudinary/cloudinary.service";
 import { ProductsService } from "./products.service";
 import { PaginationDto } from "src/common/dtos";
+import { DeleteFileDto, DeleteFilesDto } from "./dto";
 
 
 
@@ -89,8 +90,9 @@ export class ProductImagesService {
       return await this.productImageRepository.save( productImages );  
     }
 
-    async deleteSingleImage( secureUrl: string ): Promise<string> {
+    async deleteSingleImage( deleteFileDto: DeleteFileDto ): Promise<string> {
 
+      const { secureUrl } = deleteFileDto;
 
       try {
 
@@ -110,7 +112,9 @@ export class ProductImagesService {
 
     }
 
-    async deleteMultipleImages( secureUrls: string[] ): Promise<string>  {
+    async deleteMultipleImages( deleteFilesDto: DeleteFilesDto ): Promise<string>  {
+
+      const { secureUrls } = deleteFilesDto;
 
       try {
 

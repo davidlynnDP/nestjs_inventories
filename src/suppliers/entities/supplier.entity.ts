@@ -1,6 +1,7 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 import { Product } from 'src/products/entities';
+import { Company } from 'src/company/entities';
 
 
 
@@ -46,6 +47,12 @@ export class Supplier {
     )
     products?: Product[];
 
+    @OneToOne(  
+        () => Company,
+        (company) => company.suppliers, 
+        /* options? - bardHelp */
+    )
+    company?: Company;
 
     @BeforeInsert()  
     verifyEmailBeforeInserting() {

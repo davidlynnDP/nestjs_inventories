@@ -1,34 +1,71 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
 import { LocationsService } from './locations.service';
-import { CreateLocationDto } from './dto/create-location.dto';
-import { UpdateLocationDto } from './dto/update-location.dto';
+import { CreateLocationDto, UpdateLocationDto } from './dto';
+import { PaginationDto } from 'src/common/dtos';
 
-@Controller('locations')
+@Controller('locations') // localhost:3000/api/locations
 export class LocationsController {
-  constructor(private readonly locationsService: LocationsService) {}
 
-  @Post()
-  create(@Body() createLocationDto: CreateLocationDto) {
-    return this.locationsService.create(createLocationDto);
+  constructor(
+    private readonly locationsService: LocationsService
+  ) {}
+
+  @Post() // localhost:3000/api/locations - POST
+  createLocation(
+    @Body() createLocationDto: CreateLocationDto
+  ) {
+    return this.locationsService.createLocation( createLocationDto );
   }
 
-  @Get()
-  findAll() {
-    return this.locationsService.findAll();
+  @Get('/:id') // localhost:3000/api/locations/:id - GET
+  findAllLocations(
+    @Param('id', ParseUUIDPipe ) id: string, //idCompany
+    @Query() paginationDto: PaginationDto
+  ) {
+    return this.locationsService.findAllLocations( id, paginationDto );
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.locationsService.findOne(+id);
+  //! corregir
+  @Get('plained/:term') // localhost:3000/api/locations/plained/:term - GET
+  findLocationPlained(
+    @Param( 'term' ) term: string
+  ) {
+    return this.locationsService.findLocationByTermPlained( term );
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateLocationDto: UpdateLocationDto) {
-    return this.locationsService.update(+id, updateLocationDto);
+  @Get('with-products/:term') // localhost:3000/api/locations/with-products/:term - GET
+  findLocationWithProducts(
+    @Param( 'term' ) term: string
+  ) {
+    return this.locationsService.findLocationByTermPlained( term );
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.locationsService.remove(+id);
+  @Get('with-company/:term') // localhost:3000/api/locations/with-company/:term - GET
+  findLocationWithCompany(
+    @Param( 'term' ) term: string
+  ) {
+    return this.locationsService.findLocationByTermPlained( term );
+  }
+
+  @Get('with-movements/:term') // localhost:3000/api/locations/with-movements/:term - GET
+  findLocationWithMovements(
+    @Param( 'term' ) term: string
+  ) {
+    return this.locationsService.findLocationByTermPlained( term );
+  }
+
+  @Patch(':id') // localhost:3000/api/locations/:id - PATCH
+  updateLocation(
+    @Param('id', ParseUUIDPipe ) id: string,
+    @Body() updateLocationDto: UpdateLocationDto
+  ) {
+    return this.locationsService.updateLocation( id, updateLocationDto );
+  }
+
+  @Delete(':id') // localhost:3000/api/locations/:id - DELETE
+  deleteLocation(
+    @Param('id', ParseUUIDPipe ) id: string,
+  ) {
+    return this.locationsService.deleteLocation( id );
   }
 }

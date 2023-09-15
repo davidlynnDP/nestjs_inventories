@@ -1,6 +1,7 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 import { Order } from 'src/orders/entities';
+import { Company } from 'src/company/entities';
 
 
 
@@ -31,6 +32,13 @@ export class Client {
         type: 'text',
     })
     address: string;
+
+    @OneToOne(
+        () => Company,
+        (company) => company.clients, 
+        /* options? - bardHelp */
+    )
+    company?: Company;
 
     @OneToMany(
         () => Order,

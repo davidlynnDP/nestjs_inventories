@@ -1,7 +1,11 @@
-import { IsEmail, IsString, MinLength } from "class-validator";
+import { IsEmail, IsString, IsUUID, MinLength } from "class-validator";
 
 
 export class CreateClientDto {
+    
+    @IsString()
+    @IsUUID('4')
+    idCompany: string; 
     
     @IsString()
     @MinLength(1)  

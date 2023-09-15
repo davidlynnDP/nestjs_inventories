@@ -1,7 +1,10 @@
 import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
-import { Product } from '../../products/entities';
+import { Product, ProductCategories } from '../../products/entities';
 import { Order } from 'src/orders/entities';
+import { Client } from 'src/clients/entities';
+import { Supplier } from 'src/suppliers/entities';
+import { Location } from 'src/locations/entities';
 
 
 @Entity({ name: 'companies' })
@@ -57,6 +60,34 @@ export class Company {
         /* options? - bardHelp */
     )
     products?: Product[];
+
+    @OneToMany(
+        () => Client,
+        (client) => client.company, 
+        /* options? - bardHelp */
+    )
+    clients?: Client[];
+
+    @OneToMany(
+        () => Supplier,
+        (supplier) => supplier.company, 
+        /* options? - bardHelp */
+    )
+    suppliers?: Supplier[];
+
+    @OneToMany(
+        () => Location,
+        (location) => location.company, 
+        /* options? - bardHelp */
+    )
+    locations?: Location[];
+
+    @OneToMany(
+        () => ProductCategories,
+        (category) => category.company, 
+        /* options? - bardHelp */
+    )
+    categories?: ProductCategories[];
 
         
     @BeforeInsert()  

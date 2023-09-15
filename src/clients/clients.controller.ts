@@ -1,34 +1,64 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
 import { ClientsService } from './clients.service';
-import { CreateClientDto } from './dto/create-client.dto';
-import { UpdateClientDto } from './dto/update-client.dto';
+import { CreateClientDto, UpdateClientDto } from './dto';
+import { PaginationDto } from 'src/common/dtos';
 
-@Controller('clients')
+@Controller('clients') // localhost:3000/api/clients
 export class ClientsController {
-  constructor(private readonly clientsService: ClientsService) {}
 
-  @Post()
-  create(@Body() createClientDto: CreateClientDto) {
-    return this.clientsService.create(createClientDto);
+  constructor(
+    private readonly clientsService: ClientsService
+  ) {}
+
+  @Post() // localhost:3000/api/clients - POST
+  createClient(
+    @Body() createClientDto: CreateClientDto
+  ) {
+    return this.clientsService.createClient( createClientDto );
   }
 
-  @Get()
-  findAll() {
-    return this.clientsService.findAll();
+  @Get('/:id') // localhost:3000/api/clients/:id - GET
+  findAllClients(
+    @Param('id', ParseUUIDPipe ) id: string, //idCompany
+    @Query() paginationDto: PaginationDto
+  ) {
+    return this.clientsService.findAllClients( id, paginationDto );
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.clientsService.findOne(+id);
+  //! corregir
+  @Get('plained/:term') // localhost:3000/api/clients/plained/:term - GET
+  findClientPlained(
+    @Param( 'term' ) term: string
+  ) {
+    return this.clientsService.findClientByTermPlained( term );
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateClientDto: UpdateClientDto) {
-    return this.clientsService.update(+id, updateClientDto);
+  @Get('number-of-orders-by-this-customer/:term') // localhost:3000/api/clients/number-of-orders-by-this-customer/:term - GET
+  numberOfOrdersByThisCustomer(
+    @Param( 'term' ) term: string
+  ) {
+    return this.clientsService.findClientByTermPlained( term );
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.clientsService.remove(+id);
+  @Get('with-company/:term') // localhost:3000/api/clients/with-company/:term - GET
+  findClientWithCompany(
+    @Param( 'term' ) term: string
+  ) {
+    return this.clientsService.findClientByTermPlained( term );
+  }
+
+  @Patch(':id') // localhost:3000/api/clients/:id - PATCH
+  updateLocation(
+    @Param('id', ParseUUIDPipe ) id: string,
+    @Body() updateClientDto: UpdateClientDto
+  ) {
+    return this.clientsService.updateClient( id, updateClientDto );
+  }
+
+  @Delete(':id') // localhost:3000/api/clients/:id - DELETE
+  deleteLocation(
+    @Param('id', ParseUUIDPipe ) id: string,
+  ) {
+    return this.clientsService.deleteClient( id );
   }
 }

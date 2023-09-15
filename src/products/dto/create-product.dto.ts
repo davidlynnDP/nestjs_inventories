@@ -1,8 +1,21 @@
-import { IsInt, IsNumber, IsOptional, IsPositive, IsString, Min, MinLength } from 'class-validator';
+import { IsInt, IsNumber, IsOptional, IsPositive, IsString, IsUUID, Min, MinLength } from 'class-validator';
 
 
 export class CreateProductDto {
 
+    @IsUUID('4')
+    @IsString()
+    idCompany: string;
+
+    @IsUUID('4')
+    @IsString()
+    idSupplier: string;
+
+    @IsUUID('4')
+    @IsString()
+    idLocation: string;
+
+    
     @IsString()
     @MinLength(1)  
     title: string;

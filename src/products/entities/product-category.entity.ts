@@ -1,6 +1,7 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 import { Product } from './product.entity';
+import { Company } from 'src/company/entities';
 
 
 @Entity({ name: 'product_categories' }) 
@@ -22,5 +23,12 @@ export class ProductCategories {
         /* options? - bardHelp */
     )
     products?: Product[];
+
+    @OneToOne(
+        () => Company,
+        (company) => company.categories,
+        /* options? - bardHelp */
+    )
+    company?: Company;
 
 }

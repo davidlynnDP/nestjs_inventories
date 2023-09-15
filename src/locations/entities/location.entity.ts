@@ -1,7 +1,8 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 import { InventoryMovement } from 'src/inventory-movements/entities';
 import { Product } from 'src/products/entities';
+import { Company } from 'src/company/entities';
 
 
 
@@ -36,5 +37,12 @@ export class Location {
         /* options? - bardHelp */
     )
     movements?: InventoryMovement[];
+
+    @OneToOne(  
+        () => Company,
+        (company) => company.locations, 
+        /* options? - bardHelp */
+    )
+    company?: Company;
 
 }
