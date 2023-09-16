@@ -2,8 +2,8 @@ import { BeforeInsert, Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColu
 
 import { Location } from 'src/locations/entities';
 import { Product } from 'src/products/entities';
-import { TypesOfInventoryMovement } from '../enums';
 import { formattedDate } from '../helpers';
+import { Company } from 'src/company/entities';
 
 
 @Entity({ name: 'inventory_movements' })
@@ -13,18 +13,18 @@ export class InventoryMovement {
     id: string;
     
     @Column({
-        type: 'date'
+        type: 'text'
     })
     inventoryMovementDate: string;
 
     @Column({
-        enum: TypesOfInventoryMovement
+        type: 'text',
     })
-    inventoryMovementType: TypesOfInventoryMovement;
+    inventoryMovementType: 'entrance' | 'exit' | 'transfer' | 'devolution';
 
     @OneToMany(  
         () => Product,
-        (product) => product.movements, 
+        (product) => product.movement, 
         /* options? - bardHelp */
     )
     affectedProducts?: Product[];
@@ -49,6 +49,12 @@ export class InventoryMovement {
     )
     destinationLocation?: Location;
 
+    @OneToOne(  
+        () => Company,
+        (company) => company.movements, 
+        /* options? - bardHelp */
+    )
+    company?: Company;
     
     @BeforeInsert()  
     createDateBeforeInserting() {

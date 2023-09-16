@@ -1,9 +1,23 @@
-import { IsEnum } from "class-validator";
-import { TypesOfInventoryMovement } from "../enums";
+import { IsArray, IsString, IsUUID } from "class-validator";
 
 
 export class CreateInventoryMovementDto {
 
-    @IsEnum(TypesOfInventoryMovement)
-    inventoryMovementType: TypesOfInventoryMovement;
+    @IsString()
+    inventoryMovementType: 'entrance' | 'exit' | 'transfer' | 'devolution';
+
+    @IsArray()
+    productsIds: string[]; 
+
+    @IsString()
+    @IsUUID("4")
+    sourceLocation: string;
+
+    @IsUUID('4')
+    @IsString()
+    idCompany: string;
+
+    @IsString()
+    @IsUUID("4")
+    destinationLocation: string;
 }

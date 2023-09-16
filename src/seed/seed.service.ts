@@ -11,6 +11,7 @@ import { InventoryMovementsService } from '../inventory-movements/inventory-move
 import { OrdersService } from 'src/orders/orders.service';
 import { ProductImagesService } from 'src/products/product-images.service';
 import { ProductCategoriesService } from 'src/products/product-categories.service';
+import * as seed from './seed-information';
 
 
 
@@ -53,10 +54,78 @@ export class SeedService {
 
     await this.deleteDataFromTables();
 
-    /* insertar información */
-
+    const company = await this.insertCompanies();  
+    const supplier = await this.insertSuppliers( company.id );  
+    const location = await this.insertocations( company.id );  
+    await this.insertProducts( company.id, supplier.id, location.id );  
+    await this.insertClients( company.id );  
 
     return 'Executed seed';
+  }
+
+  private async insertCompanies() {
+
+    const companiesSeed = seed.companiesInformation;
+    const companiesPromises = [];
+
+    companiesSeed.forEach( company => {
+      companiesPromises.push( this.companiesService.createCompany( company ) );
+    });
+
+    const companies = await Promise.all( companiesPromises );
+    return companies[0];
+  }
+
+  private async insertSuppliers( idCompany: string ) {
+
+    const suppliersSeed = seed.supplierInformation;
+    const suppliersPromises = [];
+
+    suppliersSeed.forEach( supplier => {
+      suppliersPromises.push( this.suppliersService.createSupplier({ idCompany, ...supplier }) );
+    });
+
+    const suppliers = await Promise.all( suppliersPromises );
+    return suppliers[0];
+  }
+
+  private async insertocations( idCompany: string ) {
+
+    const locationsSeed = seed.locationsInformation;
+    const locationsPromises = [];
+
+    locationsSeed.forEach( location => {
+      locationsPromises.push( this.locationsService.createLocation({ idCompany, ...location }) );
+    });
+
+    const locations = await Promise.all( locationsPromises );
+    return locations[0];
+  }
+
+  private async insertClients( idCompany: string ) {
+
+    const clientsSeed = seed.clientsInformation;
+    const clientsPromises = [];
+
+    clientsSeed.forEach( client => {
+      clientsPromises.push( this.clientsService.createClient({ idCompany, ...client }) );
+    });
+
+    const clients = await Promise.all( clientsPromises );
+    return clients[0];
+  }
+
+  private async insertProducts( idCompany: string, idSupplier: string, idLocation: string ) {
+
+    const productsSeed = seed.productInformation;
+    const productsPromises = [];
+
+    productsSeed.forEach( product => {
+      productsPromises.push( this.productsService.createProduct({ idCompany, idSupplier, idLocation, ...product }) );
+    });
+
+    const products = await Promise.all( productsPromises );
+    return products[0];
   }
 
   private async deleteDataFromTables(): Promise<void> {

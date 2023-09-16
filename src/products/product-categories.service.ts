@@ -22,22 +22,23 @@ export class ProductCategoriesService {
       ) {}
 
 
-      async createProductCategory( category: string ): Promise<ProductCategories> {
+      async createProductCategory( id: string, category: string ): Promise<ProductCategories> {
 
         let isCategoryFound: ProductCategories = await this.findTheCategory( category );
     
         if ( !!isCategoryFound ) return isCategoryFound;
+
+        const company = await this.companyService.findCompanyByTerm( id )
     
         try {
     
           const categoryInstance = this.productCategoryRepository.create({
-            category
+            category,
+            company
           });
           
-          await this.productCategoryRepository.save( categoryInstance );  
-    
-          return categoryInstance;
-          
+          return await this.productCategoryRepository.save( categoryInstance );  
+
         } catch ( error ) {
           this.commonService.errorHandler( error );
         }

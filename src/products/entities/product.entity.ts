@@ -1,4 +1,4 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 import { ProductCategories, ProductImage } from './';
 import { Supplier } from 'src/suppliers/entities';
@@ -6,6 +6,7 @@ import { Location } from 'src/locations/entities';
 import { InventoryMovement } from 'src/inventory-movements/entities';
 import { Company } from 'src/company/entities';
 import { SEOFriendlyURL } from '../helpers';
+import { Order } from 'src/orders/entities';
 
 
 @Entity({ name: 'products' })
@@ -79,23 +80,28 @@ export class Product {
     )
     category?: ProductCategories;
 
-    @OneToMany(  
+    @OneToOne(  
         () => Location,
         (location) => location.products, 
         /* options? - bardHelp */
     )
-    locations?: Location;
+    location?: Location;
 
-    @OneToMany(  
+    @OneToOne(  
         () => InventoryMovement,
         (inventoryMovement) => inventoryMovement.affectedProducts, 
         /* options? - bardHelp */
     )
-    movements?: InventoryMovement[];
+    movement?: InventoryMovement;
+
+    @ManyToMany(  
+        () => Order,
+        (order) => order.productsIncludedOnOrder, 
+        /* options? - bardHelp */
+    )
+    orders?: Order[];
 
 
-
-    
     @BeforeInsert()  
     verifyCodeBeforeInserting() {
 

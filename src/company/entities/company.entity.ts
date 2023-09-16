@@ -5,6 +5,7 @@ import { Order } from 'src/orders/entities';
 import { Client } from 'src/clients/entities';
 import { Supplier } from 'src/suppliers/entities';
 import { Location } from 'src/locations/entities';
+import { InventoryMovement } from 'src/inventory-movements/entities';
 
 
 @Entity({ name: 'companies' })
@@ -89,7 +90,13 @@ export class Company {
     )
     categories?: ProductCategories[];
 
-        
+    @OneToMany(
+        () => InventoryMovement,
+        (inventoryMovement) => inventoryMovement.company, 
+        /* options? - bardHelp */
+    )
+    movements?: InventoryMovement[];
+  
     @BeforeInsert()  
     verifyEmailBeforeInserting() {
 

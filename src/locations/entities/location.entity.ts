@@ -26,7 +26,7 @@ export class Location {
 
     @OneToMany(  
         () => Product,
-        (product) => product.locations, 
+        (product) => product.location, 
         /* options? - bardHelp */
     )
     products?: Product[];

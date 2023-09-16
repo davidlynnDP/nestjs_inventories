@@ -7,7 +7,6 @@ import { CreateProductDto, UpdateProductDto } from './dto';
 import { Product } from './entities';
 import { CommonService } from 'src/common/common.service';
 import { PaginationDto } from 'src/common/dtos';
-import { ProductImagesService } from './product-images.service';
 import { ProductCategoriesService } from './product-categories.service';
 import { CompanyService } from 'src/company/company.service';
 import { SuppliersService } from 'src/suppliers/suppliers.service';
@@ -24,8 +23,6 @@ export class ProductsService {
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>, 
 
-    private readonly productImagesService: ProductImagesService, 
-
     private readonly companyService: CompanyService,
 
     private readonly suppliersService: SuppliersService,
@@ -41,7 +38,7 @@ export class ProductsService {
   async createProduct( createProductDto: CreateProductDto ) {
     
     const { category:cat, idCompany, idSupplier, idLocation, ...productDetails } = createProductDto;
-    const category = await this.productCategoriesService.createProductCategory( cat );
+    const category = await this.productCategoriesService.createProductCategory( idCompany, cat );
     const company = await this.companyService.findCompanyByTerm( idCompany );
     const supplier = await this.suppliersService.findSupplierByTerm( idSupplier );
     const location = await this.locationsService.findLocationByTerm( idLocation );
@@ -54,7 +51,7 @@ export class ProductsService {
         category,
         company,
         supplier,
-        locations: location
+        location
       });
       
       await this.productRepository.save( product );  
@@ -81,7 +78,7 @@ export class ProductsService {
       }
     })
 
-    return products.map( ({ company, supplier, locations, movements, images, category, ...aboutProduct }) => ({
+    return products.map( ({ company, supplier, location, movement, images, category, ...aboutProduct }) => ({
       ...aboutProduct
     }))
   }
@@ -129,7 +126,7 @@ export class ProductsService {
   async findProductPlained( term: string ) {
 
     const product = await this.findProductByTerm( term );
-    const { company, supplier, locations, movements, images, category, ...aboutProduct } = product;
+    const { company, supplier, location, movement, images, category, ...aboutProduct } = product;
 
     return {
       ...aboutProduct,
@@ -139,7 +136,7 @@ export class ProductsService {
   async findProductWithCategoryAndImages( term: string ) {
 
     const product = await this.findProductByTerm( term );
-    const { company, supplier, locations, movements, images, category, ...aboutProduct } = product;
+    const { company, supplier, location, movement, images, category, ...aboutProduct } = product;
 
     return {
       ...aboutProduct,
@@ -151,7 +148,7 @@ export class ProductsService {
   async findProductWithCompany( term: string ) {
 
     const product = await this.findProductByTerm( term );
-    const { company, supplier, locations, movements, images, category, ...aboutProduct } = product;
+    const { company, supplier, location, movement, images, category, ...aboutProduct } = product;
 
     return {
       ...aboutProduct,
@@ -163,7 +160,7 @@ export class ProductsService {
   async findProductWithSupplier( term: string ) {
 
     const product = await this.findProductByTerm( term );
-    const { company, supplier, locations, movements, images, category, ...aboutProduct } = product;
+    const { company, supplier, location, movement, images, category, ...aboutProduct } = product;
 
     return {
       ...aboutProduct,
@@ -174,22 +171,22 @@ export class ProductsService {
   async findProductWithLocations( term: string ) {
 
     const product = await this.findProductByTerm( term );
-    const { company, supplier, locations, movements, images, category, ...aboutProduct } = product;
+    const { company, supplier, location, movement, images, category, ...aboutProduct } = product;
 
     return {
       ...aboutProduct,
-      locations: locations.locationName
+      location: location.locationName
     }
   }
 
   async findProductWithMovements( term: string ) {
 
     const product = await this.findProductByTerm( term );
-    const { company, supplier, locations, movements, images, category, ...aboutProduct } = product;
+    const { company, supplier, location, movement, images, category, ...aboutProduct } = product;
 
     return {
       ...aboutProduct,
-      movements: movements.map( movement => movement.id )
+      movement: movement.id
     }
   }
 
@@ -200,13 +197,13 @@ export class ProductsService {
     const { category:cat, ...productToUpdate } = updateProductDto;
     
     await this.findProductByTerm( id );
-    const category = await this.productCategoriesService.createProductCategory( cat );
+    //const category = await this.productCategoriesService.createProductCategory( cat );
 
     try {
       const product = await this.productRepository.preload({ 
         id, 
         ...productToUpdate, 
-        category 
+        //category 
       });
 
       return await this.productRepository.save( product );  

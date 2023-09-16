@@ -1,8 +1,9 @@
-import { Column, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { BeforeInsert, Column, Entity, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 import { Client } from 'src/clients/entities';
 import { Company } from 'src/company/entities';
 import { Product } from 'src/products/entities';
+import { formattedDate } from 'src/inventory-movements/helpers';
 
 
 @Entity({ name: 'orders' })
@@ -12,9 +13,9 @@ export class Order {
     id: string;
     
     @Column({
-        type: 'date'
+        type: 'text'
     })
-    orderDate: Date;
+    orderDate: string;
 
     @ManyToOne(
         () => Client,
@@ -30,7 +31,7 @@ export class Order {
     )
     company?: Company;
 
-    @OneToMany(
+    @ManyToMany(
         () => Product,
         (product) => product, 
         /* options? - bardHelp */
@@ -60,5 +61,11 @@ export class Order {
         default: 0
     })
     total: number;
+
+    @BeforeInsert()  
+    createDateBeforeInserting() {
+
+        this.orderDate = formattedDate();
+    }
 
 }
